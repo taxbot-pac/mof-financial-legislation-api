@@ -1,0 +1,213 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "UAE Labour Law Reference (Static JSON)",
+    "version": "1.1.0",
+    "description": "Read-only endpoints generated daily from MOHRE index and UAE Legislation Portal to track in-force laws, amendments, repeals, and comparisons by effective dates."
+  },
+  "servers": [
+    {
+      "url": "https://<your-username>.github.io/<your-repo>"
+    }
+  ],
+  "paths": {
+    "/api/laws.json": {
+      "get": {
+        "operationId": "getInForceLaws",
+        "summary": "Latest in-force UAE labour laws",
+        "responses": {
+          "200": {
+            "description": "Array of Law objects (repealed removed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Law"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/snapshots/{date}.json": {
+      "get": {
+        "operationId": "getSnapshot",
+        "summary": "Full snapshot on a date (YYYY-MM-DD)",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Snapshot array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Law"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/diff/{old}_to_{_new}.json": {
+      "get": {
+        "operationId": "getDiff",
+        "summary": "Comparison between two snapshots",
+        "parameters": [
+          {
+            "name": "old",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "2025-10-01"
+            }
+          },
+          {
+            "name": "_new",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "2025-10-06"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Diff object (added/removed/changed)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "generatedAt": {
+                      "type": "string"
+                    },
+                    "added": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Law"
+                      }
+                    },
+                    "removed": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Law"
+                      }
+                    },
+                    "changed": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "changes": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "object",
+                              "properties": {
+                                "from": {},
+                                "to": {}
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Law": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string",
+            "enum": [
+              "labour",
+              "emiratisation",
+              "domestic-workers"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_force",
+              "amended",
+              "repealed",
+              "unknown"
+            ]
+          },
+          "effectiveFrom": {
+            "type": "string",
+            "nullable": true
+          },
+          "effectiveTo": {
+            "type": "string",
+            "nullable": true
+          },
+          "asAmendedBy": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "repealedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "mohreRef": {
+            "type": "string"
+          },
+          "uaePortal": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "sourceUrl"
+        ]
+      }
+    }
+  },
+  "x-oai-meta": {
+    "action_type": "custom",
+    "privacy_policy_url": "https://<your-username>.github.io/<your-repo>",
+    "schema_version": "v1"
+  }
+}

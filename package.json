@@ -1,0 +1,9 @@
+{
+  "name": "uae-labour-laws-sync",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "sync": "node scripts/sync-laws.mjs"
+  },
+  "dependencies": {}
+}

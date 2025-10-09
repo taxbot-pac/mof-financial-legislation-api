@@ -1,0 +1,39 @@
+name: Sync UAE Labour Laws
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install
+        run: npm ci || npm i
+
+      - name: Sync
+        run: npm run sync
+
+      - name: Commit & Push
+        run: |
+          if [[ -n "$(git status --porcelain api)" ]]; then
+            git config user.name "law-sync-bot"
+            git config user.email "law-sync-bot@users.noreply.github.com"
+            git add api
+            TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            git commit -m "chore: snapshot & diff ($TS)"
+            git push
+          else
+            echo "No changes."
+          fi
